@@ -1,7 +1,9 @@
 import { IsNotEmpty, IsString, IsInt, IsOptional } from 'class-validator';
-import { ShippingStatus } from '@prisma/client';
+import { Car } from '@prisma/client';
 
-export class CarDto {
+export class CarDto implements Car {
+  id: string;
+
   @IsNotEmpty()
   @IsString()
   make: string;
@@ -18,6 +20,6 @@ export class CarDto {
   @IsString()
   vin: string;
 
-  @IsNotEmpty()
-  shippingStatus?: ShippingStatus;
+  createdAt: Date;
+  updatedAt: Date;
 }

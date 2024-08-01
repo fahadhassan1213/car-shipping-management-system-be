@@ -18,25 +18,36 @@ export class ShipmentsService {
   }
 
   // get all shipments
-  async shipments(
-    params: {
-      skip?: number;
-      take?: number;
-      cursor?: Prisma.ShipmentWhereUniqueInput;
-      where?: Prisma.ShipmentWhereInput;
-      orderBy?: Prisma.ShipmentOrderByWithRelationInput;
-    },
-    options?: Prisma.ShipmentArgs,
-  ): Promise<Shipment[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-    return this.prisma.shipment.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-      ...options,
-    });
+  async getShipments({
+    page = 1,
+    limit = 10,
+    cursor,
+    where,
+    include,
+    orderBy,
+  }: {
+    page?: number;
+    limit?: number;
+    cursor?: Prisma.ShipmentWhereUniqueInput;
+    where?: Prisma.ShipmentWhereInput;
+    include?: Prisma.ShipmentInclude;
+    orderBy?: Prisma.ShipmentOrderByWithRelationInput;
+  }): Promise<{ data: Shipment[]; total: number }> {
+    const [total, data] = await Promise.all([
+      this.prisma.shipment.count({
+        where,
+      }),
+      this.prisma.shipment.findMany({
+        skip: Math.max(0, (page - 1) * limit),
+        take: limit,
+        cursor,
+        where,
+        include,
+        orderBy,
+      }),
+    ]);
+
+    return { data, total };
   }
 
   // create new shipment

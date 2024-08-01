@@ -45,7 +45,6 @@ model Car {
   model          String
   year           Int
   vin            String         @unique
-  shippingStatus ShippingStatus @default(PENDING)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   Shipment       Shipment[]

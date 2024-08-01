@@ -8,36 +8,30 @@ import {
   Param,
   Get,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { ParseIntPipe } from '@nestjs/common/pipes';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { Roles } from 'src/decorator/roles.decorator';
-import { Role } from 'src/enums/role.enum';
-import { RolesGuard } from 'src/guard/roles.guard';
 import { CarDto } from './dto/cars.dto';
 import { CarsService } from './cars.service';
 import { Car } from '@prisma/client';
-
 
 @Controller('cars')
 export class CarsController {
   constructor(private carsService: CarsService) {}
 
-  // GET /cars
-  @Get('all')
-  @Roles(Role.Admin)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  async getAllCars(): Promise<{ data: Car[] }> {
-    const cars = await this.carsService.cars({});
-    return { data: cars };
-  }
-
-  // GET /cars
+  // GET /cars?page=1&limit=10
   @Get()
   @UseGuards(JwtAuthGuard)
-  async getCars(@Request() req): Promise<{ data: Car[] }> {
-    const cars = await this.carsService.cars({});
-    return { data: cars };
+  async getAllCars(
+    @Query('page', ParseIntPipe) page: number = 1,
+    @Query('limit', ParseIntPipe) limit: number = 10,
+  ): Promise<{ data: Car[]; total: number; page: number; limit: number }> {
+    const { data, total } = await this.carsService.getCars({
+      page,
+      limit,
+    });
+    return { data, total, page, limit };
   }
 
   // GET /cars/1

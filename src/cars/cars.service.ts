@@ -18,25 +18,35 @@ export class CarsService {
   }
 
   // get all cars
-  async cars(
-    params: {
-      skip?: number;
-      take?: number;
+  async getCars(
+    {
+      page = 1,
+      limit = 10,
+      cursor,
+      where,
+      orderBy,
+    }: {
+      page?: number;
+      limit?: number;
       cursor?: Prisma.CarWhereUniqueInput;
       where?: Prisma.CarWhereInput;
       orderBy?: Prisma.CarOrderByWithRelationInput;
     },
-    options?: Prisma.CarArgs,
-  ): Promise<Car[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-    return this.prisma.car.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-      ...options,
-    });
+  ): Promise<{ data: Car[]; total: number }> {
+    const [total, data] = await Promise.all([
+      this.prisma.car.count({
+        where,
+      }),
+      this.prisma.car.findMany({
+        skip: (page - 1) * limit,
+        take: limit,
+        cursor,
+        where,
+        orderBy,
+      }),
+    ]);
+  
+    return { data, total };
   }
 
   // create new car

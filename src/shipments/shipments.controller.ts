@@ -37,18 +37,21 @@ export class ShipmentsController {
     @Query('car', new DefaultValuePipe(false), ParseBoolPipe)
     car: boolean,
     @Query('user', new DefaultValuePipe(false), ParseBoolPipe)
+    @Query('page', ParseIntPipe)
+    page: number = 1,
+    @Query('limit', ParseIntPipe)
+    limit: number = 10,
     user: boolean,
-  ): Promise<{ data: Shipment[] }> {
-    const shipments = await this.shipmentsService.shipments(
-      {},
-      {
-        include: {
-          car,
-          user,
-        },
+  ): Promise<{ data: Shipment[]; total: number; page: number; limit: number }> {
+    const { data, total } = await this.shipmentsService.getShipments({
+      page,
+      limit,
+      include: {
+        car,
+        user,
       },
-    );
-    return { data: shipments };
+    });
+    return { data, total, page, limit };
   }
 
   // GET /shipments
@@ -59,22 +62,24 @@ export class ShipmentsController {
     @Query('car', new DefaultValuePipe(false), ParseBoolPipe)
     car: boolean,
     @Query('user', new DefaultValuePipe(false), ParseBoolPipe)
+    @Query('page', ParseIntPipe)
+    page: number = 1,
+    @Query('limit', ParseIntPipe)
+    limit: number = 10,
     user: boolean,
-  ): Promise<{ data: Shipment[] }> {
-    const shipments = await this.shipmentsService.shipments(
-      {
-        where: {
-          userId: req.user.id,
-        },
+  ): Promise<{ data: Shipment[]; total: number; page: number; limit: number }> {
+    const { data, total } = await this.shipmentsService.getShipments({
+      page,
+      limit,
+      where: {
+        userId: req.user.id,
       },
-      {
-        include: {
-          car,
-          user,
-        },
+      include: {
+        car,
+        user,
       },
-    );
-    return { data: shipments };
+    });
+    return { data, total, page, limit };
   }
 
   // GET /shipments/1
